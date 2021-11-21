@@ -10,7 +10,6 @@ use Route\Route;
 
 class MakeStepRoute implements Route
 {
-    private const POST_KEY_STEP_DATA = 'stepData';
     private const POST_KEY_STEP_X = 'x';
     private const POST_KEY_STEP_Y = 'y';
     private const POST_KEY_STEP_TYPE = 'type';
@@ -31,12 +30,11 @@ class MakeStepRoute implements Route
 
         $field = new Field($fieldData, $fieldMinesCount, $fieldOpenedMinesCount, $fieldOpenedCellsCount, $gameStatus);
 
-        $stepData = json_decode($_POST[MakeStepRoute::POST_KEY_STEP_DATA]);
-        $stepX = $stepData->{MakeStepRoute::POST_KEY_STEP_X};
-        $stepY = $stepData->{MakeStepRoute::POST_KEY_STEP_Y};
-        $stepType = new StepTypeEnum($stepData->{MakeStepRoute::POST_KEY_STEP_TYPE});
+        $stepX = $_POST[MakeStepRoute::POST_KEY_STEP_X] - 1;
+        $stepY = $_POST[MakeStepRoute::POST_KEY_STEP_Y] - 1;
+        $stepType = new StepTypeEnum($_POST[MakeStepRoute::POST_KEY_STEP_TYPE]);
 
-        $field->makeStep($stepX - 1, $stepY - 1, $stepType);
+        $field->makeStep($stepX, $stepY, $stepType);
 
         return ((new GameRouteResponse())
             ->setField($field->getField())

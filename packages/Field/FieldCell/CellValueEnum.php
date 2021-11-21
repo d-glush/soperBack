@@ -3,7 +3,6 @@
 namespace Field\FieldCell;
 
 use Enum\Enum;
-use UnexpectedValueException;
 
 class CellValueEnum extends Enum
 {

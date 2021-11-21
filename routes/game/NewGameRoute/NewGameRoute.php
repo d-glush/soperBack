@@ -24,7 +24,7 @@ class NewGameRoute implements Route
 
     }
 
-    public function process(): Response
+    public function process(): GameRouteResponse
     {
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = null;
         $response = new GameRouteResponse();

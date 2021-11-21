@@ -4,7 +4,6 @@ namespace game;
 
 use game\MakeStepRoute\MakeStepRoute;
 use game\NewGameRoute\NewGameRoute;
-use Response\Response;
 use Route\Route;
 
 class GameRoute implements Route
@@ -26,7 +25,7 @@ class GameRoute implements Route
         $this->queryPath = $queryPath;
     }
 
-    public function process(): Response
+    public function process(): GameRouteResponse
     {
         [$method] = explode('/', $this->queryPath, 2);
 

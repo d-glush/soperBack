@@ -1,13 +1,9 @@
 <?php
-session_start();
 
 use game\GameRoute;
+use saveResult\SaveResultRoute;
 
 require_once 'core/init.php';
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: *');
-header('Content-type: application/json; charset=UTF-8');
 
 $queryPath = $_GET['q'];
 $headers = getallheaders();
@@ -19,9 +15,13 @@ switch($method) {
         $gameRoute = new GameRoute($extQueryPath);
         $result = $gameRoute->process();
         break;
-    case 'account':
+    case 'save_result':
         $saveResultRoute = new SaveResultRoute($extQueryPath);
         $result = $saveResultRoute->process();
+        break;
+    case 'scoreboard':
+        $scoreboardRoute = new ScoreboardRoute($extQueryPath);
+        $result = $scoreboardRoute->process();
         break;
     default:
         http_response_code(404);
