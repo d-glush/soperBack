@@ -1,12 +1,13 @@
 <?php
+session_start();
 
 use game\GameRoute;
 
 require_once 'core/init.php';
 
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: *');
 header('Content-type: application/json; charset=UTF-8');
-session_start();
 
 $queryPath = $_GET['q'];
 $headers = getallheaders();
