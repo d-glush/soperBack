@@ -48,7 +48,6 @@ class FieldCell
 
     public function isOpened(): bool
     {
-        var_dump($this->getStatus());
         return ($this->getStatus()->getValue() == CellStatusEnum::CELL_STATUS_OPENED);
     }
 

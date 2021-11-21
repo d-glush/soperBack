@@ -6,8 +6,8 @@ use Enum\Enum;
 
 class StepTypeEnum extends Enum
 {
-    public const STEP_TYPE_LEFT_CLICK = 0;
-    public const STEP_TYPE_RIGHT_CLICK = 1;
+    public const STEP_TYPE_LEFT_CLICK = 'leftClick';
+    public const STEP_TYPE_RIGHT_CLICK = 'rightClick';
 
     public function getPossibleValues(): array
     {

@@ -18,7 +18,7 @@ abstract class Enum
     }
 
     public abstract function getPossibleValues(): array;
-    public function getValue(): int
+    public function getValue(): int|string
     {
         return $this->value;
     }

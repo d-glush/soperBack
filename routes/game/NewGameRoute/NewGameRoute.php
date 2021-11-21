@@ -56,7 +56,7 @@ class NewGameRoute implements Route
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_MINES_COUNT] = $minesCount;
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = 0;
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT] = 0;
-        $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = new GameStatusEnum(GameStatusEnum::GAME_STATUS_PROCESS);
+        $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = GameStatusEnum::GAME_STATUS_PROCESS;
 
         $response
             ->setField($field)

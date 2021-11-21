@@ -27,7 +27,7 @@ class Field
         $minesCount = 0,
         $openedMines = 0,
         $openedCells = 0,
-        $gameStatus = null
+        ?GameStatusEnum $gameStatus = null
     ) {
         $this->field = $data;
         if (count($data) != 0) {
