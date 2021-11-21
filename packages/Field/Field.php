@@ -141,7 +141,7 @@ class Field
         if ($this->openedCells === 0) {
             $this->setRandomMine();
             $this->calcCellNumber($stepY, $stepX);
-            $this->makeStep($stepX, $stepY);
+            $this->makeStep($stepX, $stepY, StepTypeEnum::STEP_TYPE_LEFT_CLICK);
         } else {
             for ($i = 0; $i < $this->fieldHeight; $i++) {
                 for ($j = 0; $j < $this->fieldWidth; $j++) {
@@ -242,5 +242,10 @@ class Field
         }
 
         $field[$i][$j]->setValue(new CellValueEnum($minesAround));
+    }
+
+    public function getOpenedCells()
+    {
+        return $this->openedCells;
     }
 }

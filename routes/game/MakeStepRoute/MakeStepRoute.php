@@ -36,6 +36,11 @@ class MakeStepRoute implements Route
 
         $field->makeStep($stepX, $stepY, $stepType);
 
+        $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = $field->getField();
+        $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = $field->getOpenedMinesCount();
+        $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT] = $field->getOpenedCells();
+        $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = $field->getGameStatus();
+
         return ((new GameRouteResponse())
             ->setField($field->getField())
             ->setFieldHeight($fieldHeight)
