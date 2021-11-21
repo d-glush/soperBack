@@ -3,6 +3,7 @@
 namespace game\MakeStepRoute;
 
 use Field\Field;
+use Field\StepTypeEnum;
 use game\GameRoute;
 use game\GameRouteResponse;
 use Route\Route;
@@ -12,7 +13,7 @@ class MakeStepRoute implements Route
     private const POST_KEY_STEP_DATA = 'stepData';
     private const POST_KEY_STEP_X = 'x';
     private const POST_KEY_STEP_Y = 'y';
-//    private const POST_KEY_STEP_TYPE = 'type';
+    private const POST_KEY_STEP_TYPE = 'type';
 
     public function __construct(string $queryPath)
     {
@@ -33,9 +34,9 @@ class MakeStepRoute implements Route
         $stepData = json_decode($_POST[MakeStepRoute::POST_KEY_STEP_DATA]);
         $stepX = $stepData->{MakeStepRoute::POST_KEY_STEP_X};
         $stepY = $stepData->{MakeStepRoute::POST_KEY_STEP_Y};
-//        $stepType = $stepData->{MakeStepRoute::POST_KEY_STEP_TYPE};
+        $stepType = new StepTypeEnum($stepData->{MakeStepRoute::POST_KEY_STEP_TYPE});
 
-        $field->makeStep($stepX - 1, $stepY - 1);
+        $field->makeStep($stepX - 1, $stepY - 1, $stepType);
 
         return ((new GameRouteResponse())
             ->setField($field->getField())

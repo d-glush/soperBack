@@ -52,8 +52,13 @@ class FieldCell
         return ($this->getStatus()->getValue() == CellStatusEnum::CELL_STATUS_OPENED);
     }
 
-    public function open()
+    public function setOpened()
     {
-        $this->cellStatus->open();
+        $this->cellStatus->setOpened();
+    }
+
+    public function setFlagged()
+    {
+        $this->cellStatus->setFlagged();
     }
 }

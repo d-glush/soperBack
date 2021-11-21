@@ -101,14 +101,19 @@ class Field
         return $field;
     }
 
-    public function makeStep($stepX, $stepY): void
+    public function makeStep(int $stepX, int $stepY, StepTypeEnum $stepType): void
     {
         $targetCell = $this->field[$stepY][$stepX];
-        var_dump($targetCell->isOpened());
 
         if ($targetCell->isOpened()) {
             return;
         }
+
+        if ($stepType->getValue() === StepTypeEnum::STEP_TYPE_RIGHT_CLICK) {
+            $targetCell->setFlagged();
+            return;
+        }
+
         switch($targetCell->getValue()->getValue()) {
             case CellValueEnum::CELL_VALUE_EMPTY:
                 $this->processEmptyTarget($stepX, $stepY);
@@ -127,7 +132,7 @@ class Field
 
     private function processNumberTarget(int $stepX, int $stepY): void
     {
-        $this->field[$stepY][$stepX]->open();
+        $this->field[$stepY][$stepX]->setOpened();
         $this->openedCells++;
     }
 
@@ -142,7 +147,7 @@ class Field
                 for ($j = 0; $j < $this->fieldWidth; $j++) {
                     $targetCell = $this->field[$i][$j];
                     if ($targetCell->isMine()) {
-                        $targetCell->open();
+                        $targetCell->setOpened();
                     }
                 }
             }
@@ -165,7 +170,7 @@ class Field
         $stack = [[$stepY, $stepX]];
         while ($stack) {
             [$curY, $curX] = array_shift($stack);
-            $field[$curY][$curX]->open();
+            $field[$curY][$curX]->setOpened();
             $this->openedCells++;
             $used[$curY][$curX] = 1;
 
@@ -178,7 +183,7 @@ class Field
                         if ($field[$curY + $i][$curX + $j]->isEmpty()) {
                             $stack[] = [$curY + $i, $curX + $j];
                         } else {
-                            $field[$curY + $i][$curX + $j]->open();
+                            $field[$curY + $i][$curX + $j]->setOpened();
                             $this->openedCells++;
                         }
                     }
