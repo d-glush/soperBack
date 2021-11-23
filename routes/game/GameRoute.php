@@ -14,7 +14,7 @@ class GameRoute implements Route
     public const SESSION_KEY_GAME_FIELD_HEIGHT = 'game_field_height';
     public const SESSION_KEY_GAME_FIELD_MINES_COUNT = 'game_field_mines_count';
     public const SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT = 'game_field_opened_mines_count';
-    public const SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT = 'game_field_opened_mines_count';
+    public const SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT = 'game_field_opened_cells_count';
     public const SESSION_KEY_GAME_STATUS = 'game_status';
 
     public const ERROR_WRONG_METHOD = 'wrong method name';

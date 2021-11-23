@@ -14,6 +14,7 @@ class GameRouteResponse implements Response
     public array $field;
     public GameStatusEnum $gameStatus;
     public string $error = 'false';
+    public int $openedCells;
 
     public function __construct(int $fieldHeight = 0, int $fieldWidth = 0, int $minesCount = 0, array $field = [])
     {
@@ -21,7 +22,18 @@ class GameRouteResponse implements Response
         $this->fieldWidth = $fieldWidth;
         $this->minesCount = $minesCount;
         $this->openedMinesCount = 0;
+        $this->openedCells = 0;
         $this->field = $field;
+    }
+
+    public function getOpenedCells(): int
+    {
+        return $this->openedCells;
+    }
+
+    public function setOpenedCells(int $openedCells): self {
+        $this->openedCells = $openedCells;
+        return $this;
     }
 
     public function getGameStatus(): GameStatusEnum

@@ -61,6 +61,11 @@ class Field
         return $this->minesCount;
     }
 
+    public function getOpenedCells(): int
+    {
+        return $this->openedCells;
+    }
+
     public function generate($height, $width, $minesCnt): array
     {
         $this->fieldWidth = $width;
@@ -111,6 +116,7 @@ class Field
 
         if ($stepType->getValue() === StepTypeEnum::STEP_TYPE_RIGHT_CLICK) {
             $targetCell->setFlagged();
+            $this->openedMinesCount++;
             return;
         }
 
@@ -141,7 +147,7 @@ class Field
         if ($this->openedCells === 0) {
             $this->setRandomMine();
             $this->calcCellNumber($stepY, $stepX);
-            $this->makeStep($stepX, $stepY, StepTypeEnum::STEP_TYPE_LEFT_CLICK);
+            $this->makeStep($stepX, $stepY, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK));
         } else {
             for ($i = 0; $i < $this->fieldHeight; $i++) {
                 for ($j = 0; $j < $this->fieldWidth; $j++) {
@@ -168,11 +174,11 @@ class Field
         }
 
         $stack = [[$stepY, $stepX]];
+        $used[$stepY][$stepX] = 1;
         while ($stack) {
             [$curY, $curX] = array_shift($stack);
             $field[$curY][$curX]->setOpened();
             $this->openedCells++;
-            $used[$curY][$curX] = 1;
 
             for ($i = -1; $i < 2; $i++) {
                 for ($j = -1; $j < 2; $j++) {
@@ -182,7 +188,8 @@ class Field
                     if (isset($field[$curY + $i][$curX + $j]) && !$used[$curY + $i][$curX + $j]) {
                         if ($field[$curY + $i][$curX + $j]->isEmpty()) {
                             $stack[] = [$curY + $i, $curX + $j];
-                        } else {
+                            $used[$curY + $i][$curX + $j] = 1;
+                        } else if (!$field[$curY + $i][$curX + $j]->isOpened()){
                             $field[$curY + $i][$curX + $j]->setOpened();
                             $this->openedCells++;
                         }
@@ -242,10 +249,5 @@ class Field
         }
 
         $field[$i][$j]->setValue(new CellValueEnum($minesAround));
-    }
-
-    public function getOpenedCells()
-    {
-        return $this->openedCells;
     }
 }

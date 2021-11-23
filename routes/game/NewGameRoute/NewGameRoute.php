@@ -31,7 +31,7 @@ class NewGameRoute implements Route
         $gameField = new Field();
         $gameSettings = json_decode($_POST['gameSettings']);
 
-        if (isset($gameSettings->custom) && $gameSettings->custom){
+        if ($gameSettings->{NewGameRoute::POST_NAME_FIELD_COMPLEXITY} === 'custom'){
             $fieldHeight = $gameSettings->{NewGameRoute::POST_NAME_FIELD_HEIGHT};
             $fieldWidth = $gameSettings->{NewGameRoute::POST_NAME_FIELD_WIDTH};
             $minesCount = $gameSettings->{NewGameRoute::POST_NAME_FIELD_MINES_COUNT};
@@ -64,6 +64,7 @@ class NewGameRoute implements Route
             ->setFieldWidth($fieldWidth)
             ->setMinesCount($minesCount)
             ->setOpenedMinesCount(0)
+            ->setOpenedCells(0)
             ->setGameStatus(new GameStatusEnum(GameStatusEnum::GAME_STATUS_PROCESS));
         return $response;
     }

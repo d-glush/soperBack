@@ -39,13 +39,14 @@ class MakeStepRoute implements Route
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = $field->getField();
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = $field->getOpenedMinesCount();
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT] = $field->getOpenedCells();
-        $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = $field->getGameStatus();
+        $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = $field->getGameStatus()->getValue();
 
         return ((new GameRouteResponse())
             ->setField($field->getField())
             ->setFieldHeight($fieldHeight)
             ->setFieldWidth($fieldWidth)
             ->setMinesCount($fieldMinesCount)
+            ->setOpenedCells($field->getOpenedCells())
             ->setOpenedMinesCount($field->getOpenedMinesCount())
             ->setGameStatus($field->getGameStatus()));
     }
