@@ -2,11 +2,13 @@
 
 namespace Field;
 
+use DateTime;
 use Field\FieldCell\FieldCell;
 use Field\FieldCell\CellValueEnum;
 use Field\FieldCell\CellStatusEnum;
+use game\GameRoute;
 use JetBrains\PhpStorm\Pure;
-use Logger\Logger;
+use LoggerService\LoggerService;
 
 class Field
 {
@@ -112,27 +114,35 @@ class Field
         }
 
         if ($stepType->getValue() === StepTypeEnum::STEP_TYPE_RIGHT_CLICK) {
-            $targetCell->setFlagged();
-            $this->openedMinesCount++;
+            if ($targetCell->isFlagged()) {
+                $targetCell->setHidden();
+                $this->openedMinesCount--;
+            } else {
+                $targetCell->setFlagged();
+                $this->openedMinesCount++;
+            }
             return;
         }
 
         switch($targetCell->getValue()->getValue()) {
             case CellValueEnum::CELL_VALUE_EMPTY:
-                Logger::log(DEFAULT_LOG_PATH, "Попадает в пустую клетку");
+                LoggerService::log(DEFAULT_LOG_PATH, "Попадает в пустую клетку");
                 $this->processEmptyTarget($stepPos);
                 break;
             case CellValueEnum::CELL_VALUE_MINE:
-                Logger::log(DEFAULT_LOG_PATH, "Попадает в мину");
+                LoggerService::log(DEFAULT_LOG_PATH, "Попадает в мину");
+                $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT]++;
                 $this->processMineTarget($stepPos);
                 break;
             default:
-                Logger::log(DEFAULT_LOG_PATH, "Попадает в числовую клетку");
+                $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT]++;
+                LoggerService::log(DEFAULT_LOG_PATH, "Попадает в числовую клетку");
                 $this->processNumberTarget($stepPos);
                 break;
         }
         if ($this->fieldHeight * $this->fieldWidth === $this->minesCount + $this->openedCells) {
             $this->gameStatus = new GameStatusEnum(GameStatusEnum::GAME_STATUS_WIN);
+            $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME] = new DateTime();
         }
     }
 
@@ -156,7 +166,7 @@ class Field
     {
         if ($this->openedCells === 0) {
             $newMinePosition = $this->setRandomMine();
-            Logger::log(
+            LoggerService::log(
                 DEFAULT_LOG_PATH,
                 'Поставили новую мину в X=' . $newMinePosition->getX() . 'Y=' . $newMinePosition->getY()
             );

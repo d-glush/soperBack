@@ -3,11 +3,12 @@
 namespace game\NewGameRoute;
 
 use ConfigService;
+use DateTime;
 use Field\Field;
 use Field\GameStatusEnum;
 use game\GameRoute;
 use game\GameRouteResponse;
-use Logger\Logger;
+use LoggerService\LoggerService;
 use Response\Response;
 use Route\Route;
 
@@ -33,13 +34,13 @@ class NewGameRoute implements Route
         $gameSettingsData = $_POST['gameSettings'];
         $gameSettings = json_decode($gameSettingsData);
 
-        Logger::log(DEFAULT_LOG_PATH, "Начинает новую игру $gameSettingsData");
-        if ($gameSettings->{NewGameRoute::POST_NAME_FIELD_COMPLEXITY} === 'custom'){
+        LoggerService::log(DEFAULT_LOG_PATH, "Начинает новую игру $gameSettingsData");
+        $complexity = $gameSettings->{NewGameRoute::POST_NAME_FIELD_COMPLEXITY};
+        if ($complexity === 'custom'){
             $fieldHeight = $gameSettings->{NewGameRoute::POST_NAME_FIELD_HEIGHT};
             $fieldWidth = $gameSettings->{NewGameRoute::POST_NAME_FIELD_WIDTH};
             $minesCount = $gameSettings->{NewGameRoute::POST_NAME_FIELD_MINES_COUNT};
         } else {
-            $complexity = $gameSettings->{NewGameRoute::POST_NAME_FIELD_COMPLEXITY};
             $configService = new ConfigService();
             $complexities = $configService->getGameComplexities();
             if (!isset($complexities[$complexity])) {
@@ -60,6 +61,9 @@ class NewGameRoute implements Route
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = 0;
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT] = 0;
         $_SESSION[GameRoute::SESSION_KEY_GAME_STATUS] = GameStatusEnum::GAME_STATUS_PROCESS;
+        $_SESSION[GameRoute::SESSION_KEY_GAME_COMPLEXITY] = $complexity;
+        $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT] = 0;
+        $_SESSION[GameRoute::SESSION_KEY_GAME_START_TIME] = new DateTime();
 
         $response
             ->setField($field)

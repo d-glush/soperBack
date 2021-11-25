@@ -1,11 +1,11 @@
 <?php
 
 use game\GameRoute;
-use Logger\Logger;
+use LoggerService\LoggerService;
 
 require_once 'core/init.php';
 
-Logger::logStart();
+LoggerService::logStart();
 
 $queryPath = $_GET['q'];
 $headers = getallheaders();
@@ -30,4 +30,4 @@ switch($method) {
 $response = json_encode($result);
 echo $response;
 
-Logger::logEnd();
+LoggerService::logEnd();

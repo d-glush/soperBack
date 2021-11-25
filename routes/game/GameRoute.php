@@ -16,6 +16,10 @@ class GameRoute implements Route
     public const SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT = 'game_field_opened_mines_count';
     public const SESSION_KEY_GAME_FIELD_OPENED_CELLS_COUNT = 'game_field_opened_cells_count';
     public const SESSION_KEY_GAME_STATUS = 'game_status';
+    public const SESSION_KEY_GAME_COMPLEXITY = 'game_complexity';
+    public const SESSION_KEY_GAME_STEPS_COUNT = 'game_steps_count';
+    public const SESSION_KEY_GAME_START_TIME = 'game_start_time';
+    public const SESSION_KEY_GAME_FINISH_TIME = 'game_finish_time';
 
     public const ERROR_WRONG_METHOD = 'wrong method name';
 

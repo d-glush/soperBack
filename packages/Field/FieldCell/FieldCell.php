@@ -63,6 +63,17 @@ class FieldCell
         $this->cellStatus->setFlagged();
     }
 
+    public function isFlagged(): bool
+    {
+        return $this->cellStatus->getValue() === CellStatusEnum::CELL_STATUS_FLAGGED;
+    }
+
+    public function setHidden(): self
+    {
+        $this->cellStatus = new CellStatusEnum(CellStatusEnum::CELL_STATUS_HIDDEN);
+        return $this;
+    }
+
     public function increaseValue(): self
     {
         if (!$this->isMine()) {
