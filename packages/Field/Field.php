@@ -22,6 +22,7 @@ class Field
     private ?int $openedMinesCount = null;
     private ?int $openedCells = null;
     private ?GameStatusEnum $gameStatus = null;
+    private int $stepsCnt = 0;
 
     /**
      * @param array<array<FieldCell>> $data
@@ -31,7 +32,8 @@ class Field
         $minesCount = 0,
         $openedMines = 0,
         $openedCells = 0,
-        ?GameStatusEnum $gameStatus = null
+        ?GameStatusEnum $gameStatus = null,
+        int $stepsCnt = 0
     ) {
         $this->field = $data;
         if (count($data) != 0) {
@@ -42,6 +44,7 @@ class Field
             $this->fieldWidth = count($data[0]);
             $this->openedCells = $openedCells;
             $this->gameStatus = $gameStatus;
+            $this->stepsCnt = $stepsCnt;
         }
     }
 
@@ -63,6 +66,11 @@ class Field
     public function getOpenedCells(): int
     {
         return $this->openedCells;
+    }
+
+    public function getStepsCnt(): int
+    {
+        return $this->stepsCnt;
     }
 
     public function generate($height, $width, $minesCnt): array
@@ -131,18 +139,17 @@ class Field
                 break;
             case CellValueEnum::CELL_VALUE_MINE:
                 LoggerService::log(DEFAULT_LOG_PATH, "Попадает в мину");
-                $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT]++;
+                $this->stepsCnt++;
                 $this->processMineTarget($stepPos);
                 break;
             default:
-                $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT]++;
                 LoggerService::log(DEFAULT_LOG_PATH, "Попадает в числовую клетку");
+                $this->stepsCnt++;
                 $this->processNumberTarget($stepPos);
                 break;
         }
         if ($this->fieldHeight * $this->fieldWidth === $this->minesCount + $this->openedCells) {
             $this->gameStatus = new GameStatusEnum(GameStatusEnum::GAME_STATUS_WIN);
-            $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME] = new DateTime();
         }
     }
 

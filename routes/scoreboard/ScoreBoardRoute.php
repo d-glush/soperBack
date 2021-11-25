@@ -1,15 +1,10 @@
 <?php
 
-namespace save_result;
+namespace scoreboard;
 
-use game\GameRoute;
-use ResultService\ResultService;
-use ResultService\Result;
 use Route\Route;
-use UserService\User;
-use UserService\UserService;
 
-class SaveResultRoute implements Route
+class ScoreBoardRoute implements Route
 {
     private const SALT = '$2a$07$asdasdasdasdasdasdasdasda$';
 
@@ -32,8 +27,12 @@ class SaveResultRoute implements Route
         $userService = new UserService($connection);
 
         $login = $_POST[SaveResultRoute::POST_KEY_LOGIN];
+        var_dump($login);
         $passwordDecoded = $_POST[SaveResultRoute::POST_KEY_PASSWORD];
+        var_dump($passwordDecoded);
+        var_dump(static::SALT);
         $password = crypt($passwordDecoded, static::SALT);
+        var_dump($password);
 
         $user = $userService->getUserByLogin($login);
         $saveStatus = null;
@@ -55,11 +54,10 @@ class SaveResultRoute implements Route
             }
         }
 
-        $timeStart = $_SESSION[GameRoute::SESSION_KEY_GAME_START_TIME];
+        $timeStart = $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME];
         $timeFinish = $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME];
         $gameTime = (((int)$timeFinish->format('U'))*1000 + (int)$timeFinish->format('v')) -
             (((int)$timeStart->format('U'))*1000 + (int)$timeStart->format('v'));
-
         $result = new Result([
             "user_id" => $userId,
             "complexity" => $_SESSION[GameRoute::SESSION_KEY_GAME_COMPLEXITY],
@@ -67,7 +65,6 @@ class SaveResultRoute implements Route
             "game_time" => $gameTime,
             "steps_count" => $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT],
         ]);
-
         $resultService = new ResultService($connection);
         $resultService->addResult($result);
 

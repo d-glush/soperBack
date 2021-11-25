@@ -27,6 +27,8 @@ switch($method) {
         $saveResultRoute = new SaveResultRoute($extQueryPath);
         $result = $saveResultRoute->process();
         break;
+    case 'scoreboard':
+        $scoreBoardRoute = new ScoreBoardRoute($extQueryPath);
     default:
         http_response_code(404);
         echo json_encode('wrong method name');
