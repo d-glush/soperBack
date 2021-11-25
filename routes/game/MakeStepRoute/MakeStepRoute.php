@@ -4,6 +4,7 @@ namespace game\MakeStepRoute;
 
 use Field\Field;
 use Field\GameStatusEnum;
+use Field\Position2D;
 use Field\StepTypeEnum;
 use game\GameRoute;
 use game\GameRouteResponse;
@@ -34,7 +35,7 @@ class MakeStepRoute implements Route
         $stepY = $_POST[MakeStepRoute::POST_KEY_STEP_Y];
         $stepType = new StepTypeEnum($_POST[MakeStepRoute::POST_KEY_STEP_TYPE]);
 
-        $field->makeStep($stepX, $stepY, $stepType);
+        $field->makeStep(new Position2D($stepX, $stepY), $stepType);
 
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = $field->getField();
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = $field->getOpenedMinesCount();

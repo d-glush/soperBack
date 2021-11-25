@@ -5,6 +5,7 @@ namespace Field;
 use Field\FieldCell\FieldCell;
 use Field\FieldCell\CellValueEnum;
 use Field\FieldCell\CellStatusEnum;
+use JetBrains\PhpStorm\Pure;
 
 class Field
 {
@@ -56,11 +57,6 @@ class Field
         return $this->gameStatus;
     }
 
-    public function getMinesCount(): int
-    {
-        return $this->minesCount;
-    }
-
     public function getOpenedCells(): int
     {
         return $this->openedCells;
@@ -97,7 +93,7 @@ class Field
             for ($j = 0; $j < $width; $j++) {
                 $targetCell = $field[$i][$j];
                 if (!$targetCell->isMine()) {
-                    $this->calcCellNumber($i, $j);
+                    $this->recalcCellNumber(new Position2D($j, $i));
                 }
             }
         }
@@ -106,9 +102,9 @@ class Field
         return $field;
     }
 
-    public function makeStep(int $stepX, int $stepY, StepTypeEnum $stepType): void
+    public function makeStep(Position2D $stepPos, StepTypeEnum $stepType): void
     {
-        $targetCell = $this->field[$stepY][$stepX];
+        $targetCell = $this->getCellByPos($stepPos);
 
         if ($targetCell->isOpened()) {
             return;
@@ -122,13 +118,13 @@ class Field
 
         switch($targetCell->getValue()->getValue()) {
             case CellValueEnum::CELL_VALUE_EMPTY:
-                $this->processEmptyTarget($stepX, $stepY);
+                $this->processEmptyTarget($stepPos);
                 break;
             case CellValueEnum::CELL_VALUE_MINE:
-                $this->processMineTarget($stepX, $stepY);
+                $this->processMineTarget($stepPos);
                 break;
             default:
-                $this->processNumberTarget($stepX, $stepY);
+                $this->processNumberTarget($stepPos);
                 break;
         }
         if ($this->fieldHeight * $this->fieldWidth === $this->minesCount + $this->openedCells) {
@@ -136,18 +132,30 @@ class Field
         }
     }
 
-    private function processNumberTarget(int $stepX, int $stepY): void
+    private function processNumberTarget(Position2D $cellPos): void
     {
-        $this->field[$stepY][$stepX]->setOpened();
+        $this->getCellByPos($cellPos)->setOpened();
         $this->openedCells++;
     }
 
-    private function processMineTarget(int $stepX, int $stepY): void
+    private function recalcNeighbors(Position2D $cellPos) {
+        $neighborsPos = $this->getNeighborsPos($cellPos);
+        foreach ($neighborsPos as $neighborPos) {
+            $curNeighborCell = $this->getCellByPos($neighborPos);
+            if (!$curNeighborCell->isMine()) {
+                $this->recalcCellNumber($cellPos);
+            }
+        }
+    }
+
+    private function processMineTarget(Position2D $cellPos): void
     {
         if ($this->openedCells === 0) {
-            $this->setRandomMine();
-            $this->calcCellNumber($stepY, $stepX);
-            $this->makeStep($stepX, $stepY, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK));
+            $newMinePosition = $this->setRandomMine();
+            $this->recalcNeighbors($newMinePosition);
+            $this->recalcCellNumber($cellPos);
+            $this->recalcNeighbors($cellPos);
+            $this->makeStep($cellPos, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK));
         } else {
             for ($i = 0; $i < $this->fieldHeight; $i++) {
                 for ($j = 0; $j < $this->fieldWidth; $j++) {
@@ -161,93 +169,91 @@ class Field
         }
     }
 
-    private function processEmptyTarget(int $stepX, int $stepY): void
+    private function processEmptyTarget(Position2D $cellPos): void
     {
-        $field = $this->field;
         $used = [];
         for ($i = 0; $i < $this->fieldHeight; $i++){
             $usedRow = [];
-            for ($j = 0; $j < $this->fieldHeight; $j++) {
+            for ($j = 0; $j < $this->fieldWidth; $j++) {
                 $usedRow[] = 0;
             }
             $used[] = $usedRow;
         }
 
-        $stack = [[$stepY, $stepX]];
-        $used[$stepY][$stepX] = 1;
+        $stack = [$cellPos];
+        $used[$cellPos->getY()][$cellPos->getX()] = 1;
         while ($stack) {
-            [$curY, $curX] = array_shift($stack);
-            $field[$curY][$curX]->setOpened();
+            $curPos = array_shift($stack);
+            $this->getCellByPos($curPos)->setOpened();
             $this->openedCells++;
 
-            for ($i = -1; $i < 2; $i++) {
-                for ($j = -1; $j < 2; $j++) {
-                    if ($i === 0 && $j === 0) {
-                        continue;
-                    }
-                    if (isset($field[$curY + $i][$curX + $j]) && !$used[$curY + $i][$curX + $j]) {
-                        if ($field[$curY + $i][$curX + $j]->isEmpty()) {
-                            $stack[] = [$curY + $i, $curX + $j];
-                            $used[$curY + $i][$curX + $j] = 1;
-                        } else if (!$field[$curY + $i][$curX + $j]->isOpened()){
-                            $field[$curY + $i][$curX + $j]->setOpened();
-                            $this->openedCells++;
-                        }
+            $neighborsPos = $this->getNeighborsPos($curPos);
+            foreach ($neighborsPos as $neighborPos) {
+                $curNeighborCell = $this->getCellByPos($neighborPos);
+                if (!$used[$neighborPos->getY()][$neighborPos->getX()]) {
+                    if ($curNeighborCell->isEmpty()) {
+                        $stack[] = $neighborPos;
+                        $used[$neighborPos->getY()][$neighborPos->getX()] = 1;
+                    } else if (!$curNeighborCell->isOpened()){
+                        $curNeighborCell->setOpened();
+                        $this->openedCells++;
                     }
                 }
             }
         }
     }
 
-    private function setRandomMine(): void
+    private function setRandomMine(): Position2D
     {
+        $newMinePosX = -1;
+        $newMinePosY = -1;
         $isMineSettled = false;
         while (!$isMineSettled) {
-            $x = rand(0, $this->fieldWidth - 1);
-            $y = rand(0, $this->fieldHeight - 1);
+            $newMinePosX = rand(0, $this->fieldWidth - 1);
+            $newMinePosY = rand(0, $this->fieldHeight - 1);
             /** @var FieldCell $targetCell */
-            $targetCell = $this->field[$y][$x];
+            $targetCell = $this->field[$newMinePosX][$newMinePosY];
             if (!$targetCell->isMine()) {
                 $targetCell->setValue(new CellValueEnum(CellValueEnum::CELL_VALUE_MINE));
                 $isMineSettled = true;
             }
         }
+        return new Position2D($newMinePosX, $newMinePosY);
     }
 
-    private function calcCellNumber(int $i, int $j): void
+    private function recalcCellNumber(Position2D $cellPos): void
     {
-        $field = $this->field;
-
-        if ($field[$i][$j]->isMine()) {
-            return;
-        }
-
         $minesAround = 0;
-        if ($i > 0) {
-            $minesAround += $field[$i-1][$j]->isMine() ? 1 : 0;
+        $neighborsPos = $this->getNeighborsPos($cellPos);
+        foreach ($neighborsPos as $neighborPos) {
+            if ($this->getCellByPos($neighborPos)->isMine()) {
+                $minesAround++;
+            }
         }
-        if ($i < $this->fieldHeight - 1) {
-            $minesAround += $field[$i+1][$j]->isMine() ? 1 : 0;
-        }
-        if ($j > 0) {
-            $minesAround += $field[$i][$j-1]->isMine() ? 1 : 0;
-        }
-        if ($j < $this->fieldWidth - 1) {
-            $minesAround += $field[$i][$j+1]->isMine() ? 1 : 0;
-        }
-        if ($i > 0 && $j > 0) {
-            $minesAround += $field[$i-1][$j-1]->isMine() ? 1 : 0;
-        }
-        if ($i > 0 && $j < $this->fieldWidth - 1) {
-            $minesAround += $field[$i-1][$j+1]->isMine() ? 1 : 0;
-        }
-        if ($i < $this->fieldHeight - 1 && $j > 0) {
-            $minesAround += $field[$i+1][$j-1]->isMine() ? 1 : 0;
-        }
-        if ($i < $this->fieldHeight - 1 && $j < $this->fieldWidth - 1) {
-            $minesAround += $field[$i+1][$j+1]->isMine() ? 1 : 0;
-        }
+        $this->getCellByPos($cellPos)->setValue(new CellValueEnum($minesAround));
+    }
 
-        $field[$i][$j]->setValue(new CellValueEnum($minesAround));
+    /**
+     * @return array<Position2D>
+     */
+    #[Pure] private function getNeighborsPos(Position2D $cellPos): array
+    {
+        $neighbors = [];
+        for ($i = -1; $i < 2; $i++) {
+            for ($j = -1; $j < 2; $j++) {
+                if ($i === 0 && $j === 0) {
+                    continue;
+                }
+                if (isset($this->field[$cellPos->getY() + $i][$cellPos->getX() + $j])) {
+                    $neighbors[] = new Position2D($cellPos->getX() + $j, $cellPos->getY() + $i);
+                }
+            }
+        }
+        return $neighbors;
+    }
+
+    #[Pure] private function getCellByPos(Position2D $cellPos): FieldCell
+    {
+        return $this->field[$cellPos->getY()][$cellPos->getX()];
     }
 }

@@ -21,7 +21,6 @@ class NewGameRoute implements Route
 
     public function __construct(string $queryPath)
     {
-
     }
 
     public function process(): Response
@@ -43,9 +42,9 @@ class NewGameRoute implements Route
                 return $response->setError(NewGameRoute::ERROR_WRONG_COMPLEXITY);
             }
             $fieldSettings = $complexities[$complexity];
-            $fieldHeight = $fieldSettings['fieldHeight'];
-            $fieldWidth = $fieldSettings['fieldWidth'];
-            $minesCount = $fieldSettings['minesCount'];
+            $fieldHeight = $fieldSettings[NewGameRoute::POST_NAME_FIELD_HEIGHT];
+            $fieldWidth = $fieldSettings[NewGameRoute::POST_NAME_FIELD_WIDTH];
+            $minesCount = $fieldSettings[NewGameRoute::POST_NAME_FIELD_MINES_COUNT];
         }
 
         $field = $gameField->generate($fieldHeight,$fieldWidth,$minesCount);

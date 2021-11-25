@@ -2,6 +2,8 @@
 
 namespace Field\FieldCell;
 
+use JetBrains\PhpStorm\Pure;
+
 class FieldCell
 {
     public ?CellValueEnum $cellValue = null;
@@ -36,17 +38,17 @@ class FieldCell
         $this->cellStatus = $status;
     }
 
-    public function isMine(): bool
+    #[Pure] public function isMine(): bool
     {
         return ($this->cellValue->getValue() == CellValueEnum::CELL_VALUE_MINE);
     }
 
-    public function isEmpty(): bool
+    #[Pure] public function isEmpty(): bool
     {
         return ($this->cellValue->getValue() == CellValueEnum::CELL_VALUE_EMPTY);
     }
 
-    public function isOpened(): bool
+    #[Pure] public function isOpened(): bool
     {
         return ($this->getStatus()->getValue() == CellStatusEnum::CELL_STATUS_OPENED);
     }
@@ -59,5 +61,13 @@ class FieldCell
     public function setFlagged()
     {
         $this->cellStatus->setFlagged();
+    }
+
+    public function increaseValue(): self
+    {
+        if (!$this->isMine()) {
+            $this->cellValue = new CellValueEnum($this->cellValue->getValue());
+        }
+        return $this;
     }
 }
