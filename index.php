@@ -3,6 +3,7 @@
 use game\GameRoute;
 use LoggerService\LoggerService;
 use save_result\SaveResultRoute;
+use scoreboard\ScoreBoardRoute;
 
 require_once 'core/init.php';
 
@@ -29,6 +30,8 @@ switch($method) {
         break;
     case 'scoreboard':
         $scoreBoardRoute = new ScoreBoardRoute($extQueryPath);
+        $result = $scoreBoardRoute->process();
+        break;
     default:
         http_response_code(404);
         echo json_encode('wrong method name');

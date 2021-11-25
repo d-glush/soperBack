@@ -5,17 +5,21 @@ namespace ResultService;
 use DateTime;
 
 class Result {
-    private ?int $id;
-    private int $userId;
-    private string $complexity;
-    private string $date;
-    private int $gameTime;
-    private int $stepsCount;
+    public ?int $id;
+    public int $userId;
+    public string $complexity;
+    public string $date;
+    public int $gameTime;
+    public int $stepsCount;
+    public ?int $position;
 
     public function __construct(array $dataArray)
     {
         if (isset($dataArray['id'])) {
             $this->id = (int)$dataArray['id'];
+        }
+        if (isset($dataArray['position'])) {
+            $this->id = (int)$dataArray['position'];
         }
 
         $this->userId = $dataArray['user_id'];
@@ -91,5 +95,14 @@ class Result {
         return $this;
     }
 
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
 
+    public function setPosition(int $position): self
+    {
+        $this->position = $position;
+        return $this;
+    }
 }

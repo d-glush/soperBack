@@ -2,7 +2,12 @@
 
 namespace scoreboard;
 
+use Field\ComplexityEnum;
+use ResultService\ResultService;
 use Route\Route;
+use save_result\SaveResultRoute;
+use scoreboard\ScoreBoardRouteResponse;
+use UserService\UserService;
 
 class ScoreBoardRoute implements Route
 {
@@ -15,7 +20,7 @@ class ScoreBoardRoute implements Route
     {
     }
 
-    public function process(): SaveResultRouteResponse
+    public function process(): ScoreBoardRouteResponse
     {
         $connection = mysqli_connect(
             'localhost',
@@ -25,49 +30,30 @@ class ScoreBoardRoute implements Route
             3306
         );
         $userService = new UserService($connection);
-
-        $login = $_POST[SaveResultRoute::POST_KEY_LOGIN];
-        var_dump($login);
-        $passwordDecoded = $_POST[SaveResultRoute::POST_KEY_PASSWORD];
-        var_dump($passwordDecoded);
-        var_dump(static::SALT);
-        $password = crypt($passwordDecoded, static::SALT);
-        var_dump($password);
-
+        $login = $_POST[ScoreBoardRoute::POST_KEY_LOGIN];
+        $passwordDecoded = $_POST[ScoreBoardRoute::POST_KEY_PASSWORD];
+        $password = crypt($passwordDecoded, ScoreBoardRoute::SALT);
         $user = $userService->getUserByLogin($login);
-        $saveStatus = null;
         if ($user === false) {
-            $newUser = new User(['login'=>$login, 'password'=>$password]);
-            if ($passwordDecoded === '') {
-                $userId = $userService->addUserOnlyLogin($newUser);
-                $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_CREATED_ONLY_LOGIN);
-            } else {
-                $userId = $userService->addUser($newUser);
-                $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_CREATED_USER_FULL);
-            }
+            return (new ScoreBoardRouteResponse())->setError('wrong password');
         } else {
             if (!hash_equals($password, $user->getPassword())) {
-                return new SaveResultRouteResponse(new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_WRONG_PASSWORD));
+                return (new ScoreBoardRouteResponse())->setError('wrong password');
             } else {
-                $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_RESULT_SAVED);
                 $userId = $user->getId();
             }
         }
 
-        $timeStart = $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME];
-        $timeFinish = $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME];
-        $gameTime = (((int)$timeFinish->format('U'))*1000 + (int)$timeFinish->format('v')) -
-            (((int)$timeStart->format('U'))*1000 + (int)$timeStart->format('v'));
-        $result = new Result([
-            "user_id" => $userId,
-            "complexity" => $_SESSION[GameRoute::SESSION_KEY_GAME_COMPLEXITY],
-            "date" => $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME]->format('Y-m-d H:i:s'),
-            "game_time" => $gameTime,
-            "steps_count" => $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT],
-        ]);
         $resultService = new ResultService($connection);
-        $resultService->addResult($result);
 
-        return new SaveResultRouteResponse($saveStatus);
+        $top100Easy = $resultService->getTop(ComplexityEnum::COMPLEXITY_EASY, 100);
+        $top100Medium = $resultService->getTop(ComplexityEnum::COMPLEXITY_MEDIUM, 100);
+        $top100Hard = $resultService->getTop(ComplexityEnum::COMPLEXITY_HARD, 100);
+        $top = array_merge($top100Easy, $top100Medium, $top100Hard);
+
+        $curResultId = $_SESSION[SaveResultRoute::SESSION_KEY_NEW_RESULT_ID];
+        $me = $resultService->getResultWithPosition($curResultId);
+
+        return new ScoreBoardRouteResponse($top100Easy, $top100Medium, $top100Hard, $me);
     }
 }

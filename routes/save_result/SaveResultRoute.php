@@ -16,6 +16,8 @@ class SaveResultRoute implements Route
     private const POST_KEY_LOGIN = 'login';
     private const POST_KEY_PASSWORD = 'password';
 
+    public const SESSION_KEY_NEW_RESULT_ID = 'new_result_id';
+
     public function __construct(string $queryPath)
     {
     }
@@ -30,7 +32,6 @@ class SaveResultRoute implements Route
             3306
         );
         $userService = new UserService($connection);
-
         $login = $_POST[SaveResultRoute::POST_KEY_LOGIN];
         $passwordDecoded = $_POST[SaveResultRoute::POST_KEY_PASSWORD];
         $password = crypt($passwordDecoded, static::SALT);
@@ -69,7 +70,8 @@ class SaveResultRoute implements Route
         ]);
 
         $resultService = new ResultService($connection);
-        $resultService->addResult($result);
+        $newResultId = $resultService->addResult($result);
+        $_SESSION[SaveResultRoute::SESSION_KEY_NEW_RESULT_ID] = $newResultId;
 
         return new SaveResultRouteResponse($saveStatus);
     }
