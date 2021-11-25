@@ -8,6 +8,7 @@ use Field\Position2D;
 use Field\StepTypeEnum;
 use game\GameRoute;
 use game\GameRouteResponse;
+use Logger\Logger;
 use Route\Route;
 
 class MakeStepRoute implements Route
@@ -35,6 +36,7 @@ class MakeStepRoute implements Route
         $stepY = $_POST[MakeStepRoute::POST_KEY_STEP_Y];
         $stepType = new StepTypeEnum($_POST[MakeStepRoute::POST_KEY_STEP_TYPE]);
 
+        Logger::log(DEFAULT_LOG_PATH, "Делает ход: X=$stepX, Y==$stepY");
         $field->makeStep(new Position2D($stepX, $stepY), $stepType);
 
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = $field->getField();

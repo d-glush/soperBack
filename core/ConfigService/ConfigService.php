@@ -18,4 +18,9 @@ Class ConfigService
     {
         return $this->config['gameComplexities'];
     }
+
+    public function getLogsPaths(): array
+    {
+        return $this->config['logs'];
+    }
 }

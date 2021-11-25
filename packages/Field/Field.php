@@ -6,6 +6,7 @@ use Field\FieldCell\FieldCell;
 use Field\FieldCell\CellValueEnum;
 use Field\FieldCell\CellStatusEnum;
 use JetBrains\PhpStorm\Pure;
+use Logger\Logger;
 
 class Field
 {
@@ -118,12 +119,15 @@ class Field
 
         switch($targetCell->getValue()->getValue()) {
             case CellValueEnum::CELL_VALUE_EMPTY:
+                Logger::log(DEFAULT_LOG_PATH, "Попадает в пустую клетку");
                 $this->processEmptyTarget($stepPos);
                 break;
             case CellValueEnum::CELL_VALUE_MINE:
+                Logger::log(DEFAULT_LOG_PATH, "Попадает в мину");
                 $this->processMineTarget($stepPos);
                 break;
             default:
+                Logger::log(DEFAULT_LOG_PATH, "Попадает в числовую клетку");
                 $this->processNumberTarget($stepPos);
                 break;
         }
@@ -152,6 +156,10 @@ class Field
     {
         if ($this->openedCells === 0) {
             $newMinePosition = $this->setRandomMine();
+            Logger::log(
+                DEFAULT_LOG_PATH,
+                'Поставили новую мину в X=' . $newMinePosition->getX() . 'Y=' . $newMinePosition->getY()
+            );
             $this->recalcNeighbors($newMinePosition);
             $this->recalcCellNumber($cellPos);
             $this->recalcNeighbors($cellPos);
@@ -212,7 +220,7 @@ class Field
             $newMinePosX = rand(0, $this->fieldWidth - 1);
             $newMinePosY = rand(0, $this->fieldHeight - 1);
             /** @var FieldCell $targetCell */
-            $targetCell = $this->field[$newMinePosX][$newMinePosY];
+            $targetCell = $this->field[$newMinePosY][$newMinePosX];
             if (!$targetCell->isMine()) {
                 $targetCell->setValue(new CellValueEnum(CellValueEnum::CELL_VALUE_MINE));
                 $isMineSettled = true;

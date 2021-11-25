@@ -23,5 +23,5 @@ return [
             'fieldWidth' => 30,
             'minesCount' => 100,
         ]
-    ]
+    ],
 ];

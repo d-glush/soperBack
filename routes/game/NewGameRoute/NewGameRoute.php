@@ -7,6 +7,7 @@ use Field\Field;
 use Field\GameStatusEnum;
 use game\GameRoute;
 use game\GameRouteResponse;
+use Logger\Logger;
 use Response\Response;
 use Route\Route;
 
@@ -21,6 +22,7 @@ class NewGameRoute implements Route
 
     public function __construct(string $queryPath)
     {
+
     }
 
     public function process(): Response
@@ -28,8 +30,10 @@ class NewGameRoute implements Route
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = null;
         $response = new GameRouteResponse();
         $gameField = new Field();
-        $gameSettings = json_decode($_POST['gameSettings']);
+        $gameSettingsData = $_POST['gameSettings'];
+        $gameSettings = json_decode($gameSettingsData);
 
+        Logger::log(DEFAULT_LOG_PATH, "Начинает новую игру $gameSettingsData");
         if ($gameSettings->{NewGameRoute::POST_NAME_FIELD_COMPLEXITY} === 'custom'){
             $fieldHeight = $gameSettings->{NewGameRoute::POST_NAME_FIELD_HEIGHT};
             $fieldWidth = $gameSettings->{NewGameRoute::POST_NAME_FIELD_WIDTH};
