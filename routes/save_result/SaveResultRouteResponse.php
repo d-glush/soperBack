@@ -1,6 +1,6 @@
 <?php
 
-namespace game;
+namespace save_result;
 
 use Response\Response;
 use save_result\SaveStatusEnum;

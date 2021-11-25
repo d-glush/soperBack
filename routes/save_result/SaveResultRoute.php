@@ -3,16 +3,15 @@
 namespace save_result;
 
 use game\GameRoute;
-use game\SaveResultRouteResponse;
+use ResultService\ResultService;
 use ResultService\Result;
 use Route\Route;
-use UserService\ResultService;
 use UserService\User;
 use UserService\UserService;
 
 class SaveResultRoute implements Route
 {
-    private const SALT = '$MY!_/R.E,AlYYniceSAAAAALTTTT';
+    private const SALT = '$2a$07$asdasdasdasdasdasdasdasda$';
 
     private const POST_KEY_LOGIN = 'login';
     private const POST_KEY_PASSWORD = 'password';
@@ -33,27 +32,30 @@ class SaveResultRoute implements Route
         $userService = new UserService($connection);
 
         $login = $_POST[SaveResultRoute::POST_KEY_LOGIN];
+        var_dump($login);
         $passwordDecoded = $_POST[SaveResultRoute::POST_KEY_PASSWORD];
+        var_dump($passwordDecoded);
+        var_dump(static::SALT);
         $password = crypt($passwordDecoded, static::SALT);
+        var_dump($password);
 
         $user = $userService->getUserByLogin($login);
         $saveStatus = null;
-        $userid = null;
-        if (!$user) {
+        if ($user === false) {
             $newUser = new User(['login'=>$login, 'password'=>$password]);
             if ($passwordDecoded === '') {
-                $userid = $userService->addUserOnlyLogin($newUser);
+                $userId = $userService->addUserOnlyLogin($newUser);
                 $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_CREATED_ONLY_LOGIN);
             } else {
-                $userid = $userService->addUser($newUser);
+                $userId = $userService->addUser($newUser);
                 $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_CREATED_USER_FULL);
             }
         } else {
             if (!hash_equals($password, $user->getPassword())) {
-                return new SaveResultRouteResponse($saveStatus);
+                return new SaveResultRouteResponse(new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_WRONG_PASSWORD));
             } else {
                 $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_RESULT_SAVED);
-                $userid = $user->getId();
+                $userId = $user->getId();
             }
         }
 
@@ -66,7 +68,7 @@ class SaveResultRoute implements Route
             "complexity" => $_SESSION[GameRoute::SESSION_KEY_GAME_COMPLEXITY],
             "date" => $_SESSION[GameRoute::SESSION_KEY_GAME_FINISH_TIME]->format('Y-m-d H:i:s'),
             "game_time" => $gameTime,
-            "seps_count" => $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT],
+            "steps_count" => $_SESSION[GameRoute::SESSION_KEY_GAME_STEPS_COUNT],
         ]);
         $resultService = new ResultService($connection);
         $resultService->addResult($result);

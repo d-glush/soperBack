@@ -1,10 +1,9 @@
 <?php
 
-namespace UserService;
+namespace ResultService;
 
 use Field\ComplexityEnum;
 use mysqli;
-use ResultService\Result;
 
 class ResultService {
     private $connection;
@@ -30,7 +29,7 @@ class ResultService {
     {
         $userId = $result->getUserId();
         $complexity = $result->getComplexity();
-        $date = $result->getDate()->format('Y-m-d H:i:s');
+        $date = $result->getDate();
         $gameTime = $result->getGameTime();
         $stepsCount = $result->getStepsCount();
         return $this->connection->query(

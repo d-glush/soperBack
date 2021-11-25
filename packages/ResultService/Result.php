@@ -8,7 +8,7 @@ class Result {
     private ?int $id;
     private int $userId;
     private string $complexity;
-    private DateTime $date;
+    private string $date;
     private int $gameTime;
     private int $stepsCount;
 
@@ -22,6 +22,7 @@ class Result {
         $this->date = $dataArray['date'];
         $this->gameTime = $dataArray['game_time'];
         $this->stepsCount = $dataArray['steps_count'];
+        $this->complexity = $dataArray['complexity'];
     }
 
     public function getId(): ?int
@@ -57,7 +58,7 @@ class Result {
         return $this;
     }
 
-    public function getDate(): DateTime
+    public function getDate(): string
     {
         return $this->date;
     }

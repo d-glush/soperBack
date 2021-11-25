@@ -2,6 +2,7 @@
 
 use game\GameRoute;
 use LoggerService\LoggerService;
+use save_result\SaveResultRoute;
 
 require_once 'core/init.php';
 
@@ -10,14 +11,19 @@ LoggerService::logStart();
 $queryPath = $_GET['q'];
 $headers = getallheaders();
 
-[$method, $extQueryPath] = explode('/', $queryPath, 2);
+if (strpos ($queryPath, '/')) {
+    [$method, $extQueryPath] = explode('/', $queryPath, 2);
+} else {
+    $method = $queryPath;
+    $extQueryPath = '';
+}
 
 switch($method) {
     case 'game':
         $gameRoute = new GameRoute($extQueryPath);
         $result = $gameRoute->process();
         break;
-    case 'account':
+    case 'save_result':
         $saveResultRoute = new SaveResultRoute($extQueryPath);
         $result = $saveResultRoute->process();
         break;
