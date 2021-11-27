@@ -5,7 +5,7 @@ namespace ResultService;
 use mysqli;
 
 class ResultService {
-    private $connection;
+    private mysqli $connection;
 
     public function __construct(mysqli $connection)
     {
@@ -25,49 +25,51 @@ class ResultService {
         }
 
         $result = $this->connection->query(
-            "SELECT user.login as login, complexity, date, game_time as gameTime, steps_count as stepsCount
+            "SELECT result.id as id, user.id as user_id, user.login as login, complexity, date, game_time, steps_count
             FROM result JOIN user on user.id=result.user_id
             WHERE complexity='$complexity'
-            ORDER BY game_time DESC
+            ORDER BY game_time ASC
             $limitString;");
 
         $resultArray = [];
         while ($currUserData = $result->fetch_assoc()) {
-            $resultArray[] = (object)($currUserData);
+            $resultArray[] = new Result($currUserData);
         }
 
         return $resultArray;
     }
 
-    public function addResult(Result $result): bool
+    public function addResult(Result $result): int
     {
         $userId = $result->getUserId();
         $complexity = $result->getComplexity();
         $date = $result->getDate();
         $gameTime = $result->getGameTime();
         $stepsCount = $result->getStepsCount();
-        return $this->connection->query(
+        $this->connection->query(
             "INSERT INTO result 
                         (user_id, complexity, date, game_time, steps_count) 
                     VALUES 
                         ('$userId', '$complexity', '$date', '$gameTime', '$stepsCount');"
         );
+        return mysqli_insert_id($this->connection);
     }
 
-    public function getResultWithPosition(int $resultId): object
+    public function getResultWithPosition(int $resultId): Result
     {
-        $result = $this->connection->multi_query(
-            "SET @index = 0;
-SET @index = 0;
-SELECT login, complexity, date, game_time, steps_count, position FROM(
-    SELECT user.login as login, complexity, date, game_time, steps_count, @index := @index + 1 AS position
-    FROM result join user on result.user_id = user.id
-    ORDER BY game_time DESC) as a
-WHERE login='admin'
-LIMIT 1;"
-        );
-        var_dump($result);
-        var_dump(mysqli_next_result($this->connection));
-        return ((object)($result->fetch_assoc()));
+        $this->connection->query("CALL p_get_result_position_by_id($resultId, @position);");
+        $result = $this->connection->query("SELECT @position");
+        $row = $result->fetch_assoc();
+        $resultPosition = $row['@position'];
+
+        $resultObject = $this->getResultById($resultId);
+        return ($resultObject->setPosition($resultPosition));
+    }
+
+    public function getResultById(int $resultId): Result
+    {
+        $result = $this->connection->query("SELECT * FROM result WHERE id=$resultId;");
+        $row = $result->fetch_assoc();
+        return new Result($row);
     }
 }

@@ -49,7 +49,6 @@ class ScoreBoardRoute implements Route
         $top100Easy = $resultService->getTop(ComplexityEnum::COMPLEXITY_EASY, 100);
         $top100Medium = $resultService->getTop(ComplexityEnum::COMPLEXITY_MEDIUM, 100);
         $top100Hard = $resultService->getTop(ComplexityEnum::COMPLEXITY_HARD, 100);
-        $top = array_merge($top100Easy, $top100Medium, $top100Hard);
 
         $curResultId = $_SESSION[SaveResultRoute::SESSION_KEY_NEW_RESULT_ID];
         $me = $resultService->getResultWithPosition($curResultId);

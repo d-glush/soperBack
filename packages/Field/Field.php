@@ -113,7 +113,7 @@ class Field
         return $field;
     }
 
-    public function makeStep(Position2D $stepPos, StepTypeEnum $stepType): void
+    public function makeStep(Position2D $stepPos, StepTypeEnum $stepType, $isHumanStep = false): void
     {
         $targetCell = $this->getCellByPos($stepPos);
 
@@ -132,6 +132,10 @@ class Field
             return;
         }
 
+        if (!$targetCell->isOpened() && $isHumanStep) {
+            $this->stepsCnt++;
+        }
+
         switch($targetCell->getValue()->getValue()) {
             case CellValueEnum::CELL_VALUE_EMPTY:
                 LoggerService::log(DEFAULT_LOG_PATH, "Попадает в пустую клетку");
@@ -139,12 +143,10 @@ class Field
                 break;
             case CellValueEnum::CELL_VALUE_MINE:
                 LoggerService::log(DEFAULT_LOG_PATH, "Попадает в мину");
-                $this->stepsCnt++;
                 $this->processMineTarget($stepPos);
                 break;
             default:
                 LoggerService::log(DEFAULT_LOG_PATH, "Попадает в числовую клетку");
-                $this->stepsCnt++;
                 $this->processNumberTarget($stepPos);
                 break;
         }
@@ -164,7 +166,7 @@ class Field
         foreach ($neighborsPos as $neighborPos) {
             $curNeighborCell = $this->getCellByPos($neighborPos);
             if (!$curNeighborCell->isMine()) {
-                $this->recalcCellNumber($cellPos);
+                $this->recalcCellNumber($curNeighborCell);
             }
         }
     }
@@ -175,12 +177,12 @@ class Field
             $newMinePosition = $this->setRandomMine();
             LoggerService::log(
                 DEFAULT_LOG_PATH,
-                'Поставили новую мину в X=' . $newMinePosition->getX() . 'Y=' . $newMinePosition->getY()
+                'Поставили новую мину в X=' . $newMinePosition->getX() . ' Y=' . $newMinePosition->getY()
             );
             $this->recalcNeighbors($newMinePosition);
             $this->recalcCellNumber($cellPos);
             $this->recalcNeighbors($cellPos);
-            $this->makeStep($cellPos, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK));
+            $this->makeStep($cellPos, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK), false);
         } else {
             for ($i = 0; $i < $this->fieldHeight; $i++) {
                 for ($j = 0; $j < $this->fieldWidth; $j++) {

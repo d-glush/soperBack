@@ -7,6 +7,7 @@ use DateTime;
 class Result {
     public ?int $id;
     public int $userId;
+    public ?string $login;
     public string $complexity;
     public string $date;
     public int $gameTime;
@@ -20,6 +21,9 @@ class Result {
         }
         if (isset($dataArray['position'])) {
             $this->id = (int)$dataArray['position'];
+        }
+        if (isset($dataArray['login'])) {
+            $this->login = $dataArray['login'];
         }
 
         $this->userId = $dataArray['user_id'];
@@ -48,6 +52,17 @@ class Result {
     public function setUserId(mixed $userId): self
     {
         $this->userId = $userId;
+        return $this;
+    }
+
+    public function getLogin(): mixed
+    {
+        return $this->login;
+    }
+
+    public function setLogin(mixed $login): self
+    {
+        $this->login = $login;
         return $this;
     }
 

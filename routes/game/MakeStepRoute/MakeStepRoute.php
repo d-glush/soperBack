@@ -39,7 +39,7 @@ class MakeStepRoute implements Route
         $stepType = new StepTypeEnum($_POST[MakeStepRoute::POST_KEY_STEP_TYPE]);
 
         LoggerService::log(DEFAULT_LOG_PATH, "Делает ход: X=$stepX, Y==$stepY");
-        $field->makeStep(new Position2D($stepX, $stepY), $stepType);
+        $field->makeStep(new Position2D($stepX, $stepY), $stepType, true);
 
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD] = $field->getField();
         $_SESSION[GameRoute::SESSION_KEY_GAME_FIELD_OPENED_MINES_COUNT] = $field->getOpenedMinesCount();
