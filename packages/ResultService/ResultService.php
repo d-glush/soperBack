@@ -68,7 +68,11 @@ class ResultService {
 
     public function getResultById(int $resultId): Result
     {
-        $result = $this->connection->query("SELECT * FROM result WHERE id=$resultId;");
+        $result = $this->connection->query(
+            "SELECT result.id as id, user.id as user_id, user.login as login, complexity, date, game_time, steps_count 
+            FROM result 
+            JOIN user on user.id=result.user_id 
+            WHERE result.id=$resultId;");
         $row = $result->fetch_assoc();
         return new Result($row);
     }

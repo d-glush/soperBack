@@ -30,19 +30,19 @@ class ScoreBoardRoute implements Route
             3306
         );
         $userService = new UserService($connection);
-        $login = $_POST[ScoreBoardRoute::POST_KEY_LOGIN];
-        $passwordDecoded = $_POST[ScoreBoardRoute::POST_KEY_PASSWORD];
-        $password = crypt($passwordDecoded, ScoreBoardRoute::SALT);
-        $user = $userService->getUserByLogin($login);
-        if ($user === false) {
-            return (new ScoreBoardRouteResponse())->setError('wrong password');
-        } else {
-            if (!hash_equals($password, $user->getPassword())) {
-                return (new ScoreBoardRouteResponse())->setError('wrong password');
-            } else {
-                $userId = $user->getId();
-            }
-        }
+        //$login = $_POST[ScoreBoardRoute::POST_KEY_LOGIN];
+        //$passwordDecoded = $_POST[ScoreBoardRoute::POST_KEY_PASSWORD];
+        //$password = crypt($passwordDecoded, ScoreBoardRoute::SALT);
+        //$user = $userService->getUserByLogin($login);
+        //if ($user === false) {
+        //    return (new ScoreBoardRouteResponse())->setError('wrong password');
+        //} else {
+        //    if (!hash_equals($password, $user->getPassword())) {
+        //        return (new ScoreBoardRouteResponse())->setError('wrong password');
+        //    } else {
+        //        $userId = $user->getId();
+        //    }
+        //}
 
         $resultService = new ResultService($connection);
 

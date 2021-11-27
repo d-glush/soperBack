@@ -167,7 +167,7 @@ class Field
         foreach ($neighborsPos as $neighborPos) {
             $curNeighborCell = $this->getCellByPos($neighborPos);
             if (!$curNeighborCell->isMine()) {
-                $this->recalcCellNumber($curNeighborCell);
+                $this->recalcCellNumber($neighborPos);
             }
         }
     }
@@ -181,8 +181,20 @@ class Field
                 'Поставили новую мину в X=' . $newMinePosition->getX() . ' Y=' . $newMinePosition->getY()
             );
             $this->recalcNeighbors($newMinePosition);
+            LoggerService::log(
+                DEFAULT_LOG_PATH,
+                'Пересчитал значения соседей новой мины'
+            );
             $this->recalcCellNumber($cellPos);
+            LoggerService::log(
+                DEFAULT_LOG_PATH,
+                'Пересчитал значение старой мины'
+            );
             $this->recalcNeighbors($cellPos);
+            LoggerService::log(
+                DEFAULT_LOG_PATH,
+                'Пересчитал значения соседей старой мины'
+            );
             $this->makeStep($cellPos, new StepTypeEnum(StepTypeEnum::STEP_TYPE_LEFT_CLICK), false);
         } else {
             for ($i = 0; $i < $this->fieldHeight; $i++) {
