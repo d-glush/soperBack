@@ -21,16 +21,19 @@ class UserService {
         return false;
     }
 
-    public function addUser(User $user): bool
+    public function addUser(User $user): int
     {
         $login = $user->getLogin();
         $password = $user->getPassword();
-        return $this->connection->query("INSERT INTO user (login, password) VALUES ('$login', '$password');");
+        $this->connection->query("INSERT INTO user (login, password) VALUES ('$login', '$password');");
+        return mysqli_insert_id($this->connection);
     }
 
-    public function addUserOnlyLogin(User $user): bool
+    public function addUserOnlyLogin(User $user): int
     {
         $login = $user->getLogin();
-        return $this->connection->query("INSERT INTO user (login) VALUES ('$login');");
+        $this->connection->query("INSERT INTO user (login) VALUES ('$login');");
+        return mysqli_insert_id($this->connection);
+
     }
 }

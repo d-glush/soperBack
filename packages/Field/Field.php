@@ -157,6 +157,7 @@ class Field
 
     private function processNumberTarget(Position2D $cellPos): void
     {
+        //todo должны открыться соседние пустые
         $this->getCellByPos($cellPos)->setOpened();
         $this->openedCells++;
     }
