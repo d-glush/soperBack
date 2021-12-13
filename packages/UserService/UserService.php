@@ -36,4 +36,10 @@ class UserService {
         return mysqli_insert_id($this->connection);
 
     }
+
+    public function changePassword(User $user, string $password): bool
+    {
+        $id = $user->getId();
+        return $this->connection->query("UPDATE user SET `password` = '$password' WHERE id=$id");
+    }
 }

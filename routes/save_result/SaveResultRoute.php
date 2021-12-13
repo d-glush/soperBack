@@ -48,12 +48,15 @@ class SaveResultRoute implements Route
                 $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_CREATED_USER_FULL);
             }
         } else {
-            if (!hash_equals($password, $user->getPassword())) {
+            if (!$user->getPassword() && $passwordDecoded) {
+                $userService->changePassword($user, $password);
+                $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_ADDED_PASSWORD);
+            } else if (!hash_equals($password, $user->getPassword())) {
                 return new SaveResultRouteResponse(new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_WRONG_PASSWORD));
             } else {
                 $saveStatus = new SaveStatusEnum(SaveStatusEnum::SAVE_STATUS_RESULT_SAVED);
-                $userId = $user->getId();
             }
+            $userId = $user->getId();
         }
 
         $timeStart = $_SESSION[GameRoute::SESSION_KEY_GAME_START_TIME];

@@ -6,7 +6,7 @@ class User
 {
     private ?int $id;
     private string $login;
-    private ?string $password;
+    private ?string $password = null;
 
     public function __construct(array $dataArray)
     {
@@ -29,7 +29,7 @@ class User
         return $this->login;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
