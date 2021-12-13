@@ -56,6 +56,9 @@ class FieldCell
     public function setOpened()
     {
         $this->cellStatus->setOpened();
+        if ($this->isFlagged()) {
+
+        }
     }
 
     public function setFlagged()

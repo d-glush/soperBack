@@ -157,8 +157,11 @@ class Field
 
     private function processNumberTarget(Position2D $cellPos): void
     {
-        //todo должны открыться соседние пустые
-        $this->getCellByPos($cellPos)->setOpened();
+        $targetCell = $this->getCellByPos($cellPos);
+        if ($targetCell->isFlagged()) {
+            $this->openedMinesCount--;
+        }
+        $targetCell->setOpened();
         $this->openedCells++;
     }
 
@@ -201,6 +204,9 @@ class Field
                 for ($j = 0; $j < $this->fieldWidth; $j++) {
                     $targetCell = $this->field[$i][$j];
                     if ($targetCell->isMine()) {
+                        if ($targetCell->isFlagged()) {
+                            $this->openedMinesCount--;
+                        }
                         $targetCell->setOpened();
                     }
                 }
@@ -224,7 +230,11 @@ class Field
         $used[$cellPos->getY()][$cellPos->getX()] = 1;
         while ($stack) {
             $curPos = array_shift($stack);
-            $this->getCellByPos($curPos)->setOpened();
+            $targetCell = $this->getCellByPos($curPos);
+            if ($targetCell->isFlagged()) {
+                $this->openedMinesCount--;
+            }
+            $targetCell->setOpened();
             $this->openedCells++;
 
             $neighborsPos = $this->getNeighborsPos($curPos);
@@ -235,6 +245,9 @@ class Field
                         $stack[] = $neighborPos;
                         $used[$neighborPos->getY()][$neighborPos->getX()] = 1;
                     } else if (!$curNeighborCell->isOpened()){
+                        if ($curNeighborCell->isFlagged()) {
+                            $this->openedMinesCount--;
+                        }
                         $curNeighborCell->setOpened();
                         $this->openedCells++;
                     }
